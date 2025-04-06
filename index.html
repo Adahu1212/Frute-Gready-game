@@ -1,0 +1,98 @@
+
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fruit Guess Helper - Hilo</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+    input, select, button {
+      padding: 10px;
+      margin: 5px 0;
+      width: 100%;
+    }
+    .fruit-list, .prediction, .accuracy {
+      margin-top: 20px;
+      background: #fff;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    .fruit-item {
+      display: inline-block;
+      margin: 2px 5px;
+      padding: 5px 10px;
+      background: #e3f2fd;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Fruit Guess Helper (Hilo - Fruit Greedy)</h2>
+  <label>Last 10 fruits enter karein:</label>
+  <input type="text" id="fruitInput" placeholder="jaise: Kiwi, Orange, Tomato...">
+  <button onclick="predictFruit()">Predict Next Fruit</button>
+
+  <div class="fruit-list">
+    <strong>Recent Fruits:</strong>
+    <div id="recentFruits"></div>
+  </div>
+
+  <div class="prediction">
+    <strong>Prediction:</strong>
+    <div id="predictionResult">Abhi tak koi prediction nahi hua</div>
+  </div>
+
+  <div class="accuracy">
+    <strong>Prediction sahi tha?</strong><br>
+    <button onclick="updateAccuracy(true)">Yes</button>
+    <button onclick="updateAccuracy(false)">No</button>
+    <div id="accuracyDisplay">Accuracy: 0%</div>
+  </div>
+
+  <script>
+    const fruits = ["Kiwi", "Orange", "Tomato", "Watermelon", "Lemon", "Grape", "Strawberry", "Cherry"];
+    let recent = [];
+    let totalPredictions = 0;
+    let correctPredictions = 0;
+    let currentPrediction = "";
+
+    function predictFruit() {
+      const input = document.getElementById("fruitInput").value.trim();
+      if (!input) return alert("Pehle fruits daalein");
+
+      recent = input.split(/\s*,\s*/).filter(fruit => fruits.includes(fruit));
+      if (recent.length < 3) return alert("Kam se kam 3 fruits daalein");
+
+      document.getElementById("recentFruits").innerHTML = recent.map(f => `<span class='fruit-item'>${f}</span>`).join(" ");
+
+      const freq = {};
+      recent.forEach(f => freq[f] = (freq[f] || 0) + 1);
+
+      const leastUsed = fruits.filter(f => !freq[f]).concat(
+        Object.entries(freq).sort((a,b) => a[1] - b[1]).map(f => f[0])
+      );
+
+      currentPrediction = leastUsed[0];
+      document.getElementById("predictionResult").innerText = currentPrediction;
+    }
+
+    function updateAccuracy(correct) {
+      if (!currentPrediction) return alert("Pehle prediction karein");
+
+      totalPredictions++;
+      if (correct) correctPredictions++;
+
+      const accuracy = Math.round((correctPredictions / totalPredictions) * 100);
+      document.getElementById("accuracyDisplay").innerText = `Accuracy: ${accuracy}%`;
+    }
+  </script>
+</body>
+</html>
